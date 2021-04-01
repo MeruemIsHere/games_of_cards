@@ -14,11 +14,9 @@ function DeckConstructor(){
             }
         }
     )
-
-    console.log(deck)
     
 
-    return <p>Test Deck</p>
+    return deck
 }
 
 export default DeckConstructor

@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import shuffle from 'lodash.shuffle';
-import DeskConstructor from '../global_component/DeckConstructor';
+import DeckConstructor from '../global_component/DeckConstructor';
 
 class Freecell extends Component {
     state = {
-        deck: shuffle(DeskConstructor())
+        deck: shuffle(DeckConstructor())
     }
 
     render() {
-        console.log(this.state.deck);
+        const {deck} = this.state
         return (
-            <div>
-                <p>Hello</p>
+            <div style={{display:"flex", flexWrap:"wrap" }}>
+                <p style={{width: "100%"}}>Test Freecell</p>
             </div>
         );
     }
