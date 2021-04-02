@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import shuffle from 'lodash.shuffle';
 import DeckConstructor from '../global_component/DeckConstructor';
+import Card from './Card';
 import './Freecell.css';
 
 class Freecell extends Component {
     state = {
         deck: shuffle(DeckConstructor()),
         board: [[], [], [], [], [], [], [], []],
+        freePlaces: [[], [], [], []],
+        winPlaces: [[], [], [], []],
     }
     
     componentDidMount(){
@@ -33,17 +36,32 @@ class Freecell extends Component {
     }
 
     render() {
-        const {board} = this.state
+        const {board, freePlaces, winPlaces} = this.state
         return (
             <div className="carpet">
                 <p>Test Freecell</p>
+                <div className="top-board">
+                    <div className="free-places">
+                        {freePlaces.map((place, index) => (
+                            <div className="place"></div>
+                        ))}
+                    </div>
+                    <div className="win-places">
+                        {winPlaces.map((place, index) => (
+                            <div className="place"></div>
+                        ))}
+                    </div>
+                </div>
                 <div className="board">
                     {board.map((stack, index) => (
-                        <div key={index} className="place-board">
+                        <div key={index} className="place">
                             {stack.map((card, index) => (
-                                <div key={index} className="card" style={{top: `${index*30}px`}}>
-                                    <p className="value-card" style={{color: `${card.color}`}}>{card.value}{card.symbole}</p>
-                                </div>
+                                <Card 
+                                    key={index} 
+                                    index={index} 
+                                    card={card}
+                                    onClick={this.shifting}
+                                />
                             ))}
                         </div>
                     ))}
