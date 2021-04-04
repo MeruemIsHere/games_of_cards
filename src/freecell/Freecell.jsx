@@ -19,7 +19,7 @@ class Freecell extends Component {
             active: false,
             stackSelected: [],
             cards: [],
-            indexFirstCard: [],
+            firstCard: null,
         },
     }
     
@@ -46,10 +46,10 @@ class Freecell extends Component {
         })
     }
 
-    selectCard = (cardIndex, stackIndex) => {
+    shiftingCard = (cardIndex, stackIndex) => {
         const {board, cardsSelection} = this.state
-        const newBoard = board
 
+        //Sélection des cartes
         if(!cardsSelection.active){
             let cardsSelected = board[stackIndex].slice(cardIndex)
 
@@ -61,6 +61,7 @@ class Freecell extends Component {
                 let valuesDescending = [...values]
                 valuesDescending = valuesDescending.sort((a,b) => b - a)
                 let diffBetweenValues = []
+                
                 for (let i = 1; i < valuesDescending.length; i++) {
                     diffBetweenValues.push(valuesDescending[i - 1] - valuesDescending[i])
                 }
@@ -88,6 +89,7 @@ class Freecell extends Component {
                                 active: true, 
                                 stackSelected: stackIndex,
                                 cards: board[stackIndex].slice(cardIndex),
+                                firstCard: board[stackIndex].[cardIndex],
                                 indexFirstCard: [cardIndex],
                             },
                         })
@@ -99,22 +101,68 @@ class Freecell extends Component {
                 else{
                     console.log("Impossible");
                 }
-
+            }
+            else if (cardsSelected.length === 1) {
+                this.setState({
+                    cardsSelection: {
+                        ...cardsSelection, 
+                        active: true, 
+                        stackSelected: stackIndex,
+                        cards: board[stackIndex].slice(cardIndex),
+                        firstCard: board[stackIndex].[cardIndex],
+                        indexFirstCard: [cardIndex],
+                    },
+                })
             }
         }
 
-        console.log(cardsSelection.cards)
+        //Déplacement manuel des cartes
+        else {
+            this.shiftCards(stackIndex)
+        }
+        
+
+       // console.log(cardsSelection)
     }
 
-    // shiftingCards(cardIndex, stackIndex){
-    //     const stackSelected = board[stackIndex]
-    //     stackSelected.length= cardIndex
-    //     newBoard[stackIndex] = stackSelected
+    shiftCards(indexStackTarget){
+        const {board, cardsSelection} = this.state
 
-    //     this.setState({
-    //         board: newBoard
-    //     })
-    // }
+        const newBoard = board
+        const stackSelected = board[cardsSelection.stackSelected]
+        const stackTarget = board[indexStackTarget]
+        const cardTarget = stackTarget[stackTarget.length - 1]
+
+
+        if(stackTarget.length === 0 || ((cardTarget.value === cardsSelection.firstCard.value + 1) && (cardTarget.symbole !== cardsSelection.firstCard.symbole))){
+            stackSelected.length = cardsSelection.indexFirstCard
+            newBoard[cardsSelection.stackSelected] = stackSelected
+            newBoard[indexStackTarget] = [...newBoard[indexStackTarget], ...cardsSelection.cards]
+            console.log("okay");
+
+            this.setState({
+                board: newBoard,
+                cardsSelection: {
+                    active: false,
+                    stackSelected: [],
+                    cards: [],
+                    indexFirstCard: [],
+                },
+            })
+        }
+        else {
+            this.setState({
+                board: newBoard,
+                cardsSelection: {
+                    active: false,
+                    stackSelected: [],
+                    cards: [],
+                    indexFirstCard: [],
+                },
+            })
+        }
+        
+    }
 
     render() {
         const {board, freePlaces, winPlaces, cardsSelection} = this.state
@@ -145,7 +193,7 @@ class Freecell extends Component {
                                     index={cardIndex} 
                                     stackIndex={stackIndex}
                                     card={card}
-                                    onClick={this.selectCard}
+                                    onClick={this.shiftingCard}
                                 />
                             ))}
                             {cardsSelection.active && (cardsSelection.stackSelected === stackIndex) ? 
