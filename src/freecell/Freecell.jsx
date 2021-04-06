@@ -17,9 +17,11 @@ class Freecell extends Component {
         },
         cardsSelection: {
             active: false,
-            stackSelected: [],
+            placeSelection: "",
             cards: [],
-            firstCard: null,
+            firstCard: [],
+            indexFirstCard: [],
+            indexStackSelected: [],
         },
     }
     
@@ -46,12 +48,20 @@ class Freecell extends Component {
         })
     }
 
-    shiftingCard = (cardIndex, stackIndex) => {
-        const {board, cardsSelection} = this.state
+    shiftingCard = (cardIndex, stackIndex, place) => {
+        const {board, freePlaces, cardsSelection} = this.state
+        const placeSelection = place
+
+        if (place === "board") {
+            place = board
+        }
+        else if (place === "free") {
+            place = freePlaces
+        }
 
         //Sélection des cartes
         if(!cardsSelection.active){
-            let cardsSelected = board[stackIndex].slice(cardIndex)
+            let cardsSelected = place[stackIndex].slice(cardIndex)
 
             // Plusieurs cartes sélectionnés
             if(cardsSelected.length > 1){
@@ -87,30 +97,34 @@ class Freecell extends Component {
                             cardsSelection: {
                                 ...cardsSelection, 
                                 active: true, 
-                                stackSelected: stackIndex,
-                                cards: board[stackIndex].slice(cardIndex),
-                                firstCard: board[stackIndex].[cardIndex],
+                                placeSelection: placeSelection,
+                                cards: place[stackIndex].slice(cardIndex),
+                                firstCard: place[stackIndex][cardIndex],
                                 indexFirstCard: [cardIndex],
+                                indexStackSelected: stackIndex,
                             },
                         })
                     }
                     else{
-                        console.log("Impossible")
+                        console.log("Sélection impossible")
                     }
                 }
                 else{
-                    console.log("Impossible");
+                    console.log("Sélection impossible");
                 }
             }
+
+            //une seule carte sélectionné
             else if (cardsSelected.length === 1) {
                 this.setState({
                     cardsSelection: {
                         ...cardsSelection, 
                         active: true, 
-                        stackSelected: stackIndex,
-                        cards: board[stackIndex].slice(cardIndex),
-                        firstCard: board[stackIndex].[cardIndex],
+                        placeSelection: placeSelection,
+                        cards: place[stackIndex].slice(cardIndex),
+                        firstCard: place[stackIndex][cardIndex],
                         indexFirstCard: [cardIndex],
+                        indexStackSelected: stackIndex,
                     },
                 })
             }
@@ -118,50 +132,140 @@ class Freecell extends Component {
 
         //Déplacement manuel des cartes
         else {
-            this.shiftCards(stackIndex)
+            this.shiftCards(stackIndex, place)
         }
         
 
        // console.log(cardsSelection)
     }
 
-    shiftCards(indexStackTarget){
-        const {board, cardsSelection} = this.state
-
-        const newBoard = board
-        const stackSelected = board[cardsSelection.stackSelected]
-        const stackTarget = board[indexStackTarget]
-        const cardTarget = stackTarget[stackTarget.length - 1]
-
-
-        if(stackTarget.length === 0 || ((cardTarget.value === cardsSelection.firstCard.value + 1) && (cardTarget.symbole !== cardsSelection.firstCard.symbole))){
-            stackSelected.length = cardsSelection.indexFirstCard
-            newBoard[cardsSelection.stackSelected] = stackSelected
-            newBoard[indexStackTarget] = [...newBoard[indexStackTarget], ...cardsSelection.cards]
-            console.log("okay");
-
-            this.setState({
-                board: newBoard,
-                cardsSelection: {
-                    active: false,
-                    stackSelected: [],
-                    cards: [],
-                    indexFirstCard: [],
-                },
-            })
+    shiftCards(indexStackTarget, placeTarget){
+        const {board, freePlaces, cardsSelection} = this.state
+        let placeSelection = null
+        if (cardsSelection.placeSelection === "board") {
+            placeSelection = board
         }
-        else {
-            this.setState({
-                board: newBoard,
-                cardsSelection: {
-                    active: false,
-                    stackSelected: [],
-                    cards: [],
-                    indexFirstCard: [],
-                },
-            })
+        else if (cardsSelection.placeSelection === "free") {
+            placeSelection = freePlaces
         }
-        
+
+        const newPlaceTarget = [...placeTarget]
+        const stackSelected = placeSelection[cardsSelection.indexStackSelected]
+        const stackTarget = placeTarget[indexStackTarget]
+
+
+        if(placeTarget === board){
+            if (placeTarget.length === 0) {
+                console.log("coder pour place vide");
+            }
+            else {
+                const cardTarget = stackTarget[stackTarget.length - 1]
+
+                //Vérification du symbole alterné et des valeurs qui se suivent avant déplacement
+                if ((cardTarget.value === cardsSelection.firstCard.value + 1) && (cardTarget.symbole !== cardsSelection.firstCard.symbole)){
+                    stackSelected.length = cardsSelection.indexFirstCard
+
+                    // de freePlaces à board
+                    if(placeSelection === freePlaces){
+                        console.log("de freeplace à board"); 
+                        const newPlaceSelection = [...placeSelection]
+                        newPlaceSelection[cardsSelection.indexStackSelected] = stackSelected
+                        newPlaceTarget[indexStackTarget] = [...newPlaceTarget[indexStackTarget], ...cardsSelection.cards]
+                        this.setState({
+                            board: newPlaceTarget,
+                            freePlaces: newPlaceSelection,
+                            cardsSelection: {
+                                active: false,
+                                placeSelection: "",
+                                cards: [],
+                                indexFirstCard: [],
+                                indexStackSelected: [],
+                            },
+                        })
+                    }
+
+                    // de Board à Board
+                    else {
+                        newPlaceTarget[cardsSelection.indexStackSelected] = stackSelected
+                        newPlaceTarget[indexStackTarget] = [...newPlaceTarget[indexStackTarget], ...cardsSelection.cards]
+                        this.setState({
+                            board: newPlaceTarget,
+                            cardsSelection: {
+                                active: false,
+                                placeSelection: "",
+                                cards: [],
+                                indexFirstCard: [],
+                                indexStackSelected: [],
+                            },
+                        })
+                    }
+                    
+                }
+                else {
+                    this.impossibleAction()
+                }
+            }
+            
+        }
+        else if(placeTarget === freePlaces){
+            if((cardsSelection.cards.length === 1) && (placeTarget[indexStackTarget].length === 0 )) {
+                console.log("free 1card");
+                stackSelected.length = cardsSelection.indexFirstCard
+
+                //de Board à Freeplaces
+                if(placeSelection === board) {
+                    console.log("alors ?");
+                    const newPlaceSelection = [...placeSelection]
+                    newPlaceSelection[cardsSelection.indexStackSelected] = stackSelected
+                    newPlaceTarget[indexStackTarget] = [...newPlaceTarget[indexStackTarget], ...cardsSelection.cards]
+                    this.setState({
+                        board: newPlaceSelection,
+                        freePlaces: newPlaceTarget,
+                        cardsSelection: {
+                            active: false,
+                            placeSelection: "",
+                            cards: [],
+                            indexFirstCard: [],
+                            indexStackSelected: [],
+                        },
+                    })
+                }
+
+                // de Freeplace à un autre Freeplace
+                else {
+                    newPlaceTarget[cardsSelection.indexStackSelected] = stackSelected
+                    newPlaceTarget[indexStackTarget] = [...newPlaceTarget[indexStackTarget], ...cardsSelection.cards]
+                    this.setState({
+                        freePlaces: newPlaceTarget,
+                        cardsSelection: {
+                            active: false,
+                            placeSelection: "",
+                            cards: [],
+                            indexFirstCard: [],
+                            indexStackSelected: [],
+                        },
+                    })
+                }
+                
+            }
+            else {
+                //mettre plus d'une carte dans un freePlace
+                this.impossibleAction()
+            }
+        } 
+    }
+
+    impossibleAction() {
+        console.log("Action Impossible");
+        this.setState({
+            cardsSelection: {
+                active: false,
+                placeSelection: "",
+                cards: [],
+                indexFirstCard: [],
+                indexStackSelected: [],
+            },
+        })
     }
 
     render() {
@@ -171,9 +275,24 @@ class Freecell extends Component {
                 <p>Test Freecell</p>
                 <div className="top-board">
                     <div className="free-places">
-                        {freePlaces.map((place, index) => (
-                            <div className="place" key={index}>
-
+                        {freePlaces.map((place, placeIndex, freePlaces) => (
+                            <div className="place" key={placeIndex} onClick= {(place.length === 0) && (cardsSelection.cards.length !== 0) ? () => {this.shiftCards(placeIndex, freePlaces)} : null}>
+                                {place.length === 1 ? place.map((card, cardIndex) => (
+                                    <Card 
+                                        key={cardIndex} 
+                                        index={cardIndex} 
+                                        stackIndex={placeIndex}
+                                        card={card}
+                                        place="free"
+                                        onClick={this.shiftingCard}
+                                    />
+                                )) : null }
+                                {cardsSelection.active && (cardsSelection.indexStackSelected === placeIndex) && (cardsSelection.placeSelection === "free") ? 
+                                <div className="selection" style={{top: `${cardsSelection.indexFirstCard * 30}px`, height: `${(cardsSelection.cards.length * 30) + 40}px`}}>
+                                </div> 
+                                
+                                : null
+                            }
                             </div>
                         ))}
                     </div>
@@ -192,11 +311,12 @@ class Freecell extends Component {
                                     key={cardIndex} 
                                     index={cardIndex} 
                                     stackIndex={stackIndex}
+                                    place="board"
                                     card={card}
                                     onClick={this.shiftingCard}
                                 />
                             ))}
-                            {cardsSelection.active && (cardsSelection.stackSelected === stackIndex) ? 
+                            {cardsSelection.active && (cardsSelection.indexStackSelected === stackIndex) && (cardsSelection.placeSelection === "board") ? 
                                 <div className="selection" style={{top: `${cardsSelection.indexFirstCard * 30}px`, height: `${(cardsSelection.cards.length * 30) + 40}px`}}>
                                 </div> 
                                 
