@@ -56,7 +56,6 @@ class Freecell extends Component {
         freePlaces.map(place => place.length === 0 ? countPlaceEmpty++ : null)
         board.map(place => place.length === 0 ? countPlaceEmpty++ : null)
         nbOfPlaceEmpty = countPlaceEmpty
-        console.log(nbOfPlaceEmpty);
     }
 
     displaySymboleOnWinPlace(symboleCard) {
@@ -85,16 +84,17 @@ class Freecell extends Component {
             place = freePlaces
         }
 
-        // Autorisation sélection du nbre de cartes selon le nbre de places libres
-        if(cardsSelection.cards.length > nbOfPlaceEmpty + 1){
-            this.impossibleAction()
-        }
+        
         //Sélection des cartes
-        else if(!cardsSelection.active){
+        if(!cardsSelection.active){
             let cardsSelected = place[stackIndex].slice(cardIndex)
 
+            // Autorisation sélection du nbre de cartes selon le nbre de places libres
+            if(cardsSelected.length > nbOfPlaceEmpty + 1){
+                this.impossibleSelection()
+            }
             // Plusieurs cartes sélectionnés
-            if(cardsSelected.length > 1){
+            else if(cardsSelected.length > 1){
 
                 //Controler si les valeurs cartes sont décroissant de 1
                 let values = cardsSelected.map(card => card.value)
@@ -390,6 +390,10 @@ class Freecell extends Component {
                 this.impossibleAction()
             }
         }
+    }
+
+    impossibleSelection() {
+        console.log("Selection Impossible")
     }
 
     impossibleAction() {
