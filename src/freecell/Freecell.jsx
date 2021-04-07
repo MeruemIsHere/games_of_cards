@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
+import { HiArrowLeft, HiArrowRight } from "react-icons/hi";
 import shuffle from 'lodash.shuffle';
+
 import DeckConstructor from '../global_component/DeckConstructor';
 import Card from './Card';
 import './Freecell.css';
 
 let nbOfPlaceEmpty = 0
-
 class Freecell extends Component {
     state = {
         deck: shuffle(DeckConstructor()),
@@ -25,6 +26,8 @@ class Freecell extends Component {
             indexFirstCard: [],
             indexStackSelected: [],
         },
+        history: [],
+        indexHistory: 0,
     }
     
     componentDidMount(){
@@ -32,7 +35,7 @@ class Freecell extends Component {
     }
 
     distribution(){
-        let newBoard = this.state.board
+        let newBoard = [...this.state.board]
         this.state.deck.forEach(card => {
             for(let i=0; i<8; i++){
                 if(i<4 && newBoard[i].length<7){
@@ -46,7 +49,12 @@ class Freecell extends Component {
             }
         })
         this.setState({
-            board: newBoard
+            board: newBoard,
+            history: [{
+                board: [...newBoard],
+                freePlaces: [...this.state.freePlaces],
+                winPlaces: {...this.state.winPlaces},
+            }]
         })
     }
 
@@ -136,11 +144,11 @@ class Freecell extends Component {
                         })
                     }
                     else{
-                        console.log("Sélection impossible")
+                        this.impossibleSelection()
                     }
                 }
                 else{
-                    console.log("Sélection impossible");
+                    this.impossibleSelection()
                 }
             }
 
@@ -164,12 +172,10 @@ class Freecell extends Component {
         else {
             this.shiftCards(stackIndex, place)
         }
-        
-
-       // console.log(cardsSelection)
     }
 
     shiftCards(indexStackTarget, placeTarget){
+        let shiftAuthorized = false
         const {board, freePlaces, winPlaces, cardsSelection} = this.state
         let placeSelection = null
         if (cardsSelection.placeSelection === "board") {
@@ -184,46 +190,32 @@ class Freecell extends Component {
             newPlaceTarget = [...placeTarget]
         }
         
-        const stackSelected = placeSelection[cardsSelection.indexStackSelected]
+        let stackSelected = [...placeSelection[cardsSelection.indexStackSelected]]
         const stackTarget = placeTarget[indexStackTarget]
+        let newBoard = [...board]
+        let newFreePlaces = [...freePlaces]
+        let newWinPlaces = {...winPlaces}
 
         if(stackTarget === stackSelected) {
             this.impossibleAction()
         }
         else if(placeTarget === board){
             if (stackTarget.length === 0) {
-                stackSelected.length = cardsSelection.indexFirstCard
+                stackSelected.splice(cardsSelection.indexFirstCard, cardsSelection.cards.length)
 
                 if(placeSelection === board) {
                     newPlaceTarget[cardsSelection.indexStackSelected] = stackSelected
                     newPlaceTarget[indexStackTarget] = [...newPlaceTarget[indexStackTarget], ...cardsSelection.cards]
-                    this.setState({
-                        board: newPlaceTarget,
-                        cardsSelection: {
-                            active: false,
-                            placeSelection: "",
-                            cards: [],
-                            indexFirstCard: [],
-                            indexStackSelected: [],
-                        },
-                    })
+                    newBoard = newPlaceTarget
+                    shiftAuthorized = true
                 }
-                else if (placeSelection === freePlaces) {
-                    console.log("de freeplace à board"); 
+                else {
                     const newPlaceSelection = [...placeSelection]
                     newPlaceSelection[cardsSelection.indexStackSelected] = stackSelected
                     newPlaceTarget[indexStackTarget] = [...newPlaceTarget[indexStackTarget], ...cardsSelection.cards]
-                    this.setState({
-                        board: newPlaceTarget,
-                        freePlaces: newPlaceSelection,
-                        cardsSelection: {
-                            active: false,
-                            placeSelection: "",
-                            cards: [],
-                            indexFirstCard: [],
-                            indexStackSelected: [],
-                        },
-                    })
+                    newBoard = newPlaceTarget
+                    newFreePlaces = newPlaceSelection
+                    shiftAuthorized = true
                 }
                 
             }
@@ -232,41 +224,24 @@ class Freecell extends Component {
 
                 //Vérification du symbole alterné et des valeurs qui se suivent avant déplacement
                 if ((cardTarget.value === cardsSelection.firstCard.value + 1) && (cardTarget.symbole !== cardsSelection.firstCard.symbole)){
-                    stackSelected.length = cardsSelection.indexFirstCard
+                    stackSelected.splice(cardsSelection.indexFirstCard, cardsSelection.cards.length)
 
                     // de freePlaces à board
                     if(placeSelection === freePlaces){
-                        console.log("de freeplace à board"); 
                         const newPlaceSelection = [...placeSelection]
                         newPlaceSelection[cardsSelection.indexStackSelected] = stackSelected
                         newPlaceTarget[indexStackTarget] = [...newPlaceTarget[indexStackTarget], ...cardsSelection.cards]
-                        this.setState({
-                            board: newPlaceTarget,
-                            freePlaces: newPlaceSelection,
-                            cardsSelection: {
-                                active: false,
-                                placeSelection: "",
-                                cards: [],
-                                indexFirstCard: [],
-                                indexStackSelected: [],
-                            },
-                        })
+                        newBoard = newPlaceTarget
+                        newFreePlaces = newPlaceSelection
+                        shiftAuthorized = true
                     }
 
                     // de Board à Board
                     else {
                         newPlaceTarget[cardsSelection.indexStackSelected] = stackSelected
                         newPlaceTarget[indexStackTarget] = [...newPlaceTarget[indexStackTarget], ...cardsSelection.cards]
-                        this.setState({
-                            board: newPlaceTarget,
-                            cardsSelection: {
-                                active: false,
-                                placeSelection: "",
-                                cards: [],
-                                indexFirstCard: [],
-                                indexStackSelected: [],
-                            },
-                        })
+                        newBoard = newPlaceTarget
+                        shiftAuthorized = true
                     }
                     
                 }
@@ -278,42 +253,24 @@ class Freecell extends Component {
         }
         else if(placeTarget === freePlaces){
             if((cardsSelection.cards.length === 1) && (placeTarget[indexStackTarget].length === 0 )) {
-                console.log("free 1card");
-                stackSelected.length = cardsSelection.indexFirstCard
+                stackSelected.splice(cardsSelection.indexFirstCard, cardsSelection.cards.length)
 
                 //de Board à Freeplaces
                 if(placeSelection === board) {
-                    console.log("alors ?");
                     const newPlaceSelection = [...placeSelection]
                     newPlaceSelection[cardsSelection.indexStackSelected] = stackSelected
                     newPlaceTarget[indexStackTarget] = [...newPlaceTarget[indexStackTarget], ...cardsSelection.cards]
-                    this.setState({
-                        board: newPlaceSelection,
-                        freePlaces: newPlaceTarget,
-                        cardsSelection: {
-                            active: false,
-                            placeSelection: "",
-                            cards: [],
-                            indexFirstCard: [],
-                            indexStackSelected: [],
-                        },
-                    })
+                    newBoard = newPlaceSelection
+                    newFreePlaces = newPlaceTarget
+                    shiftAuthorized = true
                 }
 
                 // de Freeplace à un autre Freeplace
                 else {
                     newPlaceTarget[cardsSelection.indexStackSelected] = stackSelected
                     newPlaceTarget[indexStackTarget] = [...newPlaceTarget[indexStackTarget], ...cardsSelection.cards]
-                    this.setState({
-                        freePlaces: newPlaceTarget,
-                        cardsSelection: {
-                            active: false,
-                            placeSelection: "",
-                            cards: [],
-                            indexFirstCard: [],
-                            indexStackSelected: [],
-                        },
-                    })
+                    newFreePlaces = newPlaceTarget
+                    shiftAuthorized = true
                 }
                 
             }
@@ -325,7 +282,6 @@ class Freecell extends Component {
         
         // Pour la victoiiiire
         else if (placeTarget === winPlaces){
-            console.log("encore un peu");
             if(cardsSelection.cards.length === 1){
                 let symboleCardSelection = ""
                 if (cardsSelection.firstCard.symbole === "♥️") {
@@ -345,40 +301,24 @@ class Freecell extends Component {
 
                 if(indexStackTarget === symboleCardSelection) {
                     if(((cardsSelection.firstCard.value === 1) && (winPlaces[indexStackTarget].length === 0)) || (((winPlaces[indexStackTarget].length !== 0) && (cardsSelection.firstCard.value === (winPlaces[indexStackTarget][winPlaces[indexStackTarget].length -1].value + 1))))){
-                        stackSelected.length = cardsSelection.indexFirstCard
+                        stackSelected.splice(cardsSelection.indexFirstCard, cardsSelection.cards.length)
                         const newPlaceSelection = [...placeSelection]
                         newPlaceSelection[cardsSelection.indexStackSelected] = stackSelected
                         if (placeSelection === board) {
-                            this.setState({
-                                board: newPlaceSelection,
-                                winPlaces:{
-                                    ...winPlaces,
-                                    [indexStackTarget]: [...winPlaces[indexStackTarget], cardsSelection.firstCard],
-                                },
-                                cardsSelection: {
-                                    active: false,
-                                    placeSelection: "",
-                                    cards: [],
-                                    indexFirstCard: [],
-                                    indexStackSelected: [],
-                                },
-                            })
+                            newBoard = newPlaceSelection
+                            newWinPlaces = {
+                                ...winPlaces,
+                                [indexStackTarget]: [...winPlaces[indexStackTarget], cardsSelection.firstCard],
+                            }
+                            shiftAuthorized = true
                         }
                         else if (placeSelection === freePlaces){
-                            this.setState({
-                                freePlaces: newPlaceSelection,
-                                winPlaces:{
-                                    ...winPlaces,
-                                    [indexStackTarget]: [...winPlaces[indexStackTarget], cardsSelection.firstCard],
-                                },
-                                cardsSelection: {
-                                    active: false,
-                                    placeSelection: "",
-                                    cards: [],
-                                    indexFirstCard: [],
-                                    indexStackSelected: [],
-                                },
-                            })
+                            newFreePlaces = newPlaceSelection
+                            newWinPlaces = {
+                                ...winPlaces,
+                                [indexStackTarget]: [...winPlaces[indexStackTarget], cardsSelection.firstCard],
+                            }
+                            shiftAuthorized = true
                         }   
                     }
                 }
@@ -389,6 +329,33 @@ class Freecell extends Component {
             else {
                 this.impossibleAction()
             }
+        }
+
+        if(shiftAuthorized) {
+            const newHistory = [...this.state.history]
+            if(this.state.indexHistory < (this.state.history.length - 1)) {
+                newHistory.splice(this.state.indexHistory + 1, this.state.history.length - this.state.indexHistory)
+            }
+            this.setState({
+                board: [...newBoard],
+                freePlaces: [...newFreePlaces],
+                winPlaces: {...newWinPlaces},
+                cardsSelection: {
+                    active: false,
+                    placeSelection: "",
+                    cards: [],
+                    indexFirstCard: [],
+                    indexStackSelected: [],
+                },
+                history: [
+                    ...newHistory, {
+                        board: [...newBoard],
+                        freePlaces: [...newFreePlaces],
+                        winPlaces: {...newWinPlaces},
+                    }
+                ],
+                indexHistory: this.state.indexHistory + 1,
+            })
         }
     }
 
@@ -411,29 +378,57 @@ class Freecell extends Component {
 
 
 
+    //----------------------------History-----------------------
+    historyNavigation = (nav) => {
+        const {indexHistory, history} = this.state
+        if(nav === "back"){
+            if(indexHistory !== 0) {
+                this.setState({
+                    board: history[indexHistory - 1].board,
+                    freePlaces: history[indexHistory - 1].freePlaces,
+                    winPlaces: history[indexHistory - 1].winPlaces,
+                    indexHistory: indexHistory - 1,
+                })
+            }
+        }
+        else if(nav === "next"){
+            if(indexHistory !== history.length - 1) {
+                this.setState({
+                    board: history[indexHistory + 1].board,
+                    freePlaces: history[indexHistory + 1].freePlaces,
+                    winPlaces: history[indexHistory + 1].winPlaces,
+                    indexHistory: indexHistory + 1,
+                })
+            }
+        }
+    }
+
+
 // 
-// 
-// 
-// 
-// 
-//     
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
+//          000000000000000
+//          00000000000000000000
+//          000             0000
+//          000             0000
+//          000             0000
+//          000             0000
+//          000             0000
+//          000             0000
+//          000             0000
+//          000         00000    
+//          00000000000000            
+//          00000000000000            
+//          000         00000
+//          000             0000
+//          000             0000
+//          000             0000
+//          000             0000
+//          000             0000
 // 
 // 
 
     render() {
+        console.log(this.state.indexHistory)
+        console.log(this.state.history.length)
         const {board, freePlaces, winPlaces, cardsSelection} = this.state
         this.authorizationSelection()
         return (
@@ -525,6 +520,10 @@ class Freecell extends Component {
                             }
                         </div>
                     ))}
+                </div>
+                <div className="options">
+                    <div className="arrow back" onClick={() => this.historyNavigation("back")}><HiArrowLeft/></div>
+                    <div className="arrow next" onClick={() => this.historyNavigation("next")}><HiArrowRight/></div>
                 </div>
             </div>
         );
