@@ -46,6 +46,11 @@
     border-radius: 10px;
 }
 
+.symbole{
+    margin: 0px auto;
+    font-size: 25px;
+}
+
 .value-card{
     margin: 0px;
 }
