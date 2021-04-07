@@ -4,6 +4,8 @@ import DeckConstructor from '../global_component/DeckConstructor';
 import Card from './Card';
 import './Freecell.css';
 
+let nbOfPlaceEmpty = 0
+
 class Freecell extends Component {
     state = {
         deck: shuffle(DeckConstructor()),
@@ -48,6 +50,15 @@ class Freecell extends Component {
         })
     }
 
+    authorizationSelection() {
+        const {board, freePlaces} = this.state
+        let countPlaceEmpty = 0
+        freePlaces.map(place => place.length === 0 ? countPlaceEmpty++ : null)
+        board.map(place => place.length === 0 ? countPlaceEmpty++ : null)
+        nbOfPlaceEmpty = countPlaceEmpty
+        console.log(nbOfPlaceEmpty);
+    }
+
     displaySymboleOnWinPlace(symboleCard) {
         if(symboleCard === "heart") {
             return <p className="symbole" style={{color: "red"}}>♥️</p>
@@ -74,8 +85,12 @@ class Freecell extends Component {
             place = freePlaces
         }
 
+        // Autorisation sélection du nbre de cartes selon le nbre de places libres
+        if(cardsSelection.cards.length > nbOfPlaceEmpty + 1){
+            this.impossibleAction()
+        }
         //Sélection des cartes
-        if(!cardsSelection.active){
+        else if(!cardsSelection.active){
             let cardsSelected = place[stackIndex].slice(cardIndex)
 
             // Plusieurs cartes sélectionnés
@@ -416,6 +431,7 @@ class Freecell extends Component {
 
     render() {
         const {board, freePlaces, winPlaces, cardsSelection} = this.state
+        this.authorizationSelection()
         return (
             <div className="carpet">
                 <p>Test Freecell</p>
