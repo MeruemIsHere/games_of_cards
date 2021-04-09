@@ -4,7 +4,7 @@ import shuffle from 'lodash.shuffle';
 
 import DeckConstructor from '../global_component/DeckConstructor';
 import Card from './Card';
-import './Freecell.css';
+import './Freecell.scss';
 
 let nbOfPlaceEmpty = 0
 class Freecell extends Component {
@@ -510,7 +510,7 @@ class Freecell extends Component {
                                 className="selection" 
                                 style={{
                                     top: `${cardsSelection.indexFirstCard * 30}px`, 
-                                    height: `${(cardsSelection.cards.length * 30) + 40}px`
+                                    // height: `${(cardsSelection.cards.length * 30) + 40}px`
                                 }}
                                 onClick = {this.impossibleAction.bind(this)}
                                 >
