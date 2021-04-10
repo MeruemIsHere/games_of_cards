@@ -376,11 +376,59 @@ class Freecell extends Component {
         })
     }
 
+    selectionMarker(){
+        const screenWidth = window.innerWidth
+        let heightSelection = 0;
+        if(screenWidth < 470 ) {
+            heightSelection = 36
+        }
+        else if(screenWidth >= 470 && screenWidth < 650 ) {
+            heightSelection = 46
+        }
+        else if(screenWidth >= 650 && screenWidth < 950 ) {
+            heightSelection = 69
+        }
+        else if(screenWidth >= 950) {
+            heightSelection = 94
+        }
+
+        console.log(this.state.cardsSelection.cards.length);
+
+        return (
+            <div 
+            className="selection" 
+            style={{
+                top: `${this.state.cardsSelection.indexFirstCard * 30}px`, 
+                height: `${((this.state.cardsSelection.cards.length - 1) * 30) + heightSelection}px`
+            }}
+            onClick = {this.impossibleAction.bind(this)}
+            >
+            </div> 
+        )
+        
+    }
+
 
 
     //----------------------------History-----------------------
     historyNavigation = (nav) => {
         const {indexHistory, history} = this.state
+        let disableSelection = {}
+        if (this.state.cardsSelection.active) {
+            disableSelection = {
+                active: false,
+                placeSelection: "",
+                cards: [],
+                firstCard: [],
+                indexFirstCard: [],
+                indexStackSelected: [],
+            }
+        }
+        else {
+            disableSelection = {...this.state.cardsSelection}
+        }
+
+
         if(nav === "back"){
             if(indexHistory !== 0) {
                 this.setState({
@@ -388,6 +436,7 @@ class Freecell extends Component {
                     freePlaces: history[indexHistory - 1].freePlaces,
                     winPlaces: history[indexHistory - 1].winPlaces,
                     indexHistory: indexHistory - 1,
+                    cardsSelection: disableSelection,
                 })
             }
         }
@@ -398,6 +447,7 @@ class Freecell extends Component {
                     freePlaces: history[indexHistory + 1].freePlaces,
                     winPlaces: history[indexHistory + 1].winPlaces,
                     indexHistory: indexHistory + 1,
+                    cardsSelection: disableSelection,
                 })
             }
         }
@@ -455,8 +505,7 @@ class Freecell extends Component {
                                 )) : null }
                                 {/*Marqueur de sélection */}
                                 {cardsSelection.active && (cardsSelection.indexStackSelected === indexFreePlace) && (cardsSelection.placeSelection === "free") ? 
-                                <div className="selection" style={{top: `${cardsSelection.indexFirstCard * 30}px`, height: `${(cardsSelection.cards.length * 30) + 40}px`}}>
-                                </div> 
+                                this.selectionMarker()
                                 
                                 : null
                             }
@@ -506,16 +555,7 @@ class Freecell extends Component {
                             ))}
                             {/*Marqueur de sélection */}
                             {cardsSelection.active && (cardsSelection.indexStackSelected === stackIndex) && (cardsSelection.placeSelection === "board") ? 
-                                <div 
-                                className="selection" 
-                                style={{
-                                    top: `${cardsSelection.indexFirstCard * 30}px`, 
-                                    // height: `${(cardsSelection.cards.length * 30) + 40}px`
-                                }}
-                                onClick = {this.impossibleAction.bind(this)}
-                                >
-                                </div> 
-                                
+                                this.selectionMarker()
                                 : null
                             }
                         </div>

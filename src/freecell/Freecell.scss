@@ -2,6 +2,10 @@
     user-select: none;
 }
 
+body{
+    background-color: #333;
+}
+
 .board, .free-places, .win-places{
     display: flex;
     // border: 1px solid black;
@@ -16,7 +20,6 @@
 
 .selection{
     width: 25px;
-    height: 37px;
 }
 
 .place{
@@ -31,7 +34,7 @@
     .card{
         cursor: pointer;
         position: absolute;
-        background-color: red;
+        background-color: #900;
         box-shadow: 0px -2px 5px #333;
         /* bg Img{w:180px, h:250px} */
         /* background-color: black; */
@@ -56,7 +59,7 @@
 .carpet{
     background-color: rgb(25,25,25);
     box-sizing: border-box;
-    border: 2px solid red;
+    border: 5px solid #900;
     margin: 0 auto;
     padding: 0px 5px;
     display: flex;
@@ -90,6 +93,7 @@
     .options{
         display: flex;
         padding-right: 30px;
+        margin: 35px auto;
         justify-content: flex-end;
 
         .arrow{
@@ -126,7 +130,6 @@
 
     .selection{
         width: 32px;
-        height: 46px;
     }
     
 } 
@@ -144,7 +147,6 @@
 
     .selection{
         width: 50px;
-        height: 70px;
     }
     
     
