@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/gamesOfCards/static/css/main.faaba8b0.chunk.css",
-    "main.js": "/gamesOfCards/static/js/main.a35a102b.chunk.js",
-    "main.js.map": "/gamesOfCards/static/js/main.a35a102b.chunk.js.map",
-    "runtime-main.js": "/gamesOfCards/static/js/runtime-main.d164ceef.js",
-    "runtime-main.js.map": "/gamesOfCards/static/js/runtime-main.d164ceef.js.map",
-    "static/js/2.e1641f5b.chunk.js": "/gamesOfCards/static/js/2.e1641f5b.chunk.js",
-    "static/js/2.e1641f5b.chunk.js.map": "/gamesOfCards/static/js/2.e1641f5b.chunk.js.map",
-    "static/js/3.265062dc.chunk.js": "/gamesOfCards/static/js/3.265062dc.chunk.js",
-    "static/js/3.265062dc.chunk.js.map": "/gamesOfCards/static/js/3.265062dc.chunk.js.map",
-    "index.html": "/gamesOfCards/index.html",
-    "static/css/main.faaba8b0.chunk.css.map": "/gamesOfCards/static/css/main.faaba8b0.chunk.css.map",
-    "static/js/2.e1641f5b.chunk.js.LICENSE.txt": "/gamesOfCards/static/js/2.e1641f5b.chunk.js.LICENSE.txt"
+    "main.css": "/games_of_cards/static/css/main.faaba8b0.chunk.css",
+    "main.js": "/games_of_cards/static/js/main.e884a3dc.chunk.js",
+    "main.js.map": "/games_of_cards/static/js/main.e884a3dc.chunk.js.map",
+    "runtime-main.js": "/games_of_cards/static/js/runtime-main.025d283c.js",
+    "runtime-main.js.map": "/games_of_cards/static/js/runtime-main.025d283c.js.map",
+    "static/js/2.e1641f5b.chunk.js": "/games_of_cards/static/js/2.e1641f5b.chunk.js",
+    "static/js/2.e1641f5b.chunk.js.map": "/games_of_cards/static/js/2.e1641f5b.chunk.js.map",
+    "static/js/3.265062dc.chunk.js": "/games_of_cards/static/js/3.265062dc.chunk.js",
+    "static/js/3.265062dc.chunk.js.map": "/games_of_cards/static/js/3.265062dc.chunk.js.map",
+    "index.html": "/games_of_cards/index.html",
+    "static/css/main.faaba8b0.chunk.css.map": "/games_of_cards/static/css/main.faaba8b0.chunk.css.map",
+    "static/js/2.e1641f5b.chunk.js.LICENSE.txt": "/games_of_cards/static/js/2.e1641f5b.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.d164ceef.js",
+    "static/js/runtime-main.025d283c.js",
     "static/js/2.e1641f5b.chunk.js",
     "static/css/main.faaba8b0.chunk.css",
-    "static/js/main.a35a102b.chunk.js"
+    "static/js/main.e884a3dc.chunk.js"
   ]
 }
